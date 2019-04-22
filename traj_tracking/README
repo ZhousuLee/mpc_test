@@ -1,0 +1,3 @@
+1、G矩阵中 e2*(matrix_Ap_*vector_error_).transpose()*matrix_q_*matrix_Bp_;效果更好，原因不明。
+2、约束要设置很大，不知道是否是约束矩阵的问题。
+
