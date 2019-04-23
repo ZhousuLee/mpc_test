@@ -42,7 +42,7 @@ MPCControl::MPCControl(double sample_time,double car_length,int Np,int Nc)
     vector_error_=Eigen::MatrixXd::Zero(basic_state_size_+basic_control_size_,1);
 
     // parameters for mpc solver; number of iterations
-    mpc_max_iteration_ = 100;
+    mpc_max_iteration_ = 500;
     // parameters for mpc solver; threshold for computation
     mpc_eps_ = 0.05;
 
