@@ -117,14 +117,7 @@ void MPCControl::updateMatrix(double vx_ref,double phi_ref,double delta_ref)
     matrix_r_=5*Eigen::MatrixXd::Identity(basic_control_size_*Nc_,basic_control_size_*Nc_);
     //cout<<matrix_q_<<endl<<matrix_r_;
 
-    //更新时域的参考的轨迹（参考轨迹-参考点）
-    matrix_errors_ref_traj_=Eigen::MatrixXd::Zero(basic_state_size_*Np_,1);
-    for(int i=0;i<Np_;i++)
-    {
-        matrix_errors_ref_traj_(i*basic_state_size_,0)=errors_ref_traj_[i].x;
-        matrix_errors_ref_traj_(i*basic_state_size_+1,0)=errors_ref_traj_[i].y;
-        matrix_errors_ref_traj_(i*basic_state_size_+2,0)=errors_ref_traj_[i].phi;
-    }
+
 
     //更新二次规划矩阵
     matrix_H_=Eigen::MatrixXd::Zero(basic_control_size_*Nc_+1,basic_control_size_*Nc_+1);
@@ -132,7 +125,6 @@ void MPCControl::updateMatrix(double vx_ref,double phi_ref,double delta_ref)
     matrix_H_(matrix_H_.rows()-1,matrix_H_.cols()-1)=relax_factor_;
     matrix_G_=Eigen::MatrixXd::Zero(1,basic_control_size_*Nc_+1);
     matrix_G_.leftCols(basic_control_size_*Nc_)=2*(matrix_Ap_*vector_error_).transpose()*matrix_q_*matrix_Bp_;
-    //matrix_G_.leftCols(basic_control_size_*Nc_)=2*(matrix_Ap_*vector_error_-matrix_errors_ref_traj_).transpose()*matrix_q_*matrix_Bp_;
     //cout<<matrix_H_<<endl;
     //cout<<matrix_G_<<endl;
 
@@ -292,7 +284,7 @@ bool MPCControl::qpSlover()
     double result[basic_control_size_*Nc_+1];
     qp_problem.getPrimalSolution(result);
 
-    qp_problem.printOptions();
+    //qp_problem.printOptions();
     optim_control_.resize(basic_control_size_*Nc_);
     //cout<<"size "<<basic_control_size_*Nc_<<endl;
     for(int i=0;i<basic_control_size_*Nc_;i++)
@@ -353,17 +345,12 @@ bool MPCControl::getRealControl(vector<double>& real_vel,vector<double>& real_de
 }
 
 
-void MPCControl::updateErrorsRefTraj(vector<traj> & errors_ref_traj)
-{
-    errors_ref_traj_.resize(errors_ref_traj.size());
-    for(int i=0;i<errors_ref_traj.size();i++)
-    {
-        errors_ref_traj_[i].x=errors_ref_traj[i].x-errors_ref_traj.front().x;
-        errors_ref_traj_[i].y=errors_ref_traj[i].y-errors_ref_traj.front().y;
-        errors_ref_traj_[i].phi=errors_ref_traj[i].phi-errors_ref_traj.front().phi;
-        errors_ref_traj_[i].vel=errors_ref_traj[i].vel-errors_ref_traj.front().vel;
-        errors_ref_traj_[i].delta=errors_ref_traj[i].delta-errors_ref_traj.front().delta;
-    }
-        
-    
-}
+ void MPCControl::setRefTraj(vector<traj> & ref_traj)
+ {
+     ref_traj_.resize(ref_traj.size());
+     for(int i=0;i<ref_traj.size();i++)
+     {
+         ref_traj_[i]=ref_traj[i];
+     }
+
+ }

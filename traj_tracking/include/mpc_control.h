@@ -15,18 +15,23 @@ using namespace std;
 class MPCControl
 {
     public:
-        //默认构造函数与析构函数
+        //@ brief 默认构造函数与析构函数
         MPCControl(double sample_time,double car_length,int Np,int Nc);
         virtual ~ MPCControl();
-
         
-        //更新当前机器人的状态变量（即当前位姿）
+       //@ brief 设置参考轨迹
+       void setRefTraj(vector<traj> & ref_traj);
+
+       //@ brief 更新轨迹上离机器人实际位置最近的点
+       void updateNearestRefState();
+        
+        //@ brief 更新当前机器人的状态变量（即当前位姿）
         void updateState(traj & current_pos);
-        //计算当前位置和对应轨迹参考点的误差
+        
+        //@ brief 计算当前位置和对应轨迹参考点的误差
         void computeErrors(traj & traj_ref);
 
-        //更新时域的偏差参考轨迹
-        void updateErrorsRefTraj(vector<traj> & errors_ref_traj);
+
 
         //更新机器人对应参考位置的状态矩阵
         void updateMatrix(double vx_ref,double phi_ref,double delta_ref);
@@ -43,14 +48,16 @@ class MPCControl
         
         
     private:
+        //存放参考轨迹
+        vector<traj> ref_traj_;
+
         //当前位置
         traj  current_state_;
         //存放实际控制量
         vector<double> real_control_vel_;
         vector<double> real_control_delta_;
 
-        //存放当前一个时域内的偏差参考轨迹（以当前对应参考点为起点，与当前参考轨迹的偏差）
-        vector<traj> errors_ref_traj_;
+
         
 
         //存放每次二次规划的最优控制量和最优松弛因子
